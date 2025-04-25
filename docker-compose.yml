@@ -1,0 +1,92 @@
+
+
+services:
+  
+  database:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - local-db-data:/var/lib/postgresql/data:rw
+    ports:
+      - '5432:5432/tcp'
+    env_file:
+      - path: .env.local.default
+        required: true
+    profiles:
+      - migrator
+      - extractor
+      - api
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER:-app_user}", "-d", "${POSTGRES_DB:-app_db}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+    profiles:
+      - extractor
+      - api
+    command: mongod --quiet --logpath /dev/null
+
+
+  migrator: 
+    build: 
+      context: ./sql/
+      dockerfile: Dockerfile
+    profiles:
+      - migrator
+      - extractor
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+    env_file:
+      - path: .env.local.default
+    
+  api: 
+    build:
+      dockerfile: Dockerfile
+      target: api
+    profiles:
+      - api
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+      mongo:
+        condition: service_started
+        restart: true
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./src/app
+          target: /
+        - action: sync+restart
+          path: ./src/app/main.py
+          target: /main.py
+    env_file:
+    - path: .env.local.default
+
+  extractor:
+    build: .
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+      mongo:
+        condition: service_started
+        restart: true
+    profiles:
+      - extractor
+    env_file:
+      - path: .env.local.default
+
+
+
+  
+volumes:
+  local-db-data:
+  mongo-data:
