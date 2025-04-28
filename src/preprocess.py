@@ -70,8 +70,8 @@ def preprocess_dataset() -> None:
     for key, value in data_dict.items():
         device_message, is_message_noised =  value[-2:]
         if is_message_noised is True:
-            device_message = clean_raw_message(device_message)
-            is_message_noised = False
+            data_dict[key][-2] = clean_raw_message(device_message)
+
     
     
     with open('./data/preprocessed_messages.csv', 'w', newline='') as csvfile:

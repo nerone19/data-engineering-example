@@ -68,6 +68,9 @@ def extractor_weather_date() -> None:
 
 
 def main():
+    print('starting the data extraction.', flush=True)
     extract_raw_messages()
-    extractor_weather_date()        
+    extractor_weather_date()       
+    print('Data extraction completed. The dbs have been now populated.', flush=True) 
 
+main()

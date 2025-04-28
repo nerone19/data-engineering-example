@@ -1,9 +1,10 @@
-FROM python:3.9-alpine
+FROM python:3.9-alpine as data-extractor
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY data/ .
-COPY src/ .
+COPY src/main.py .
+COPY src/models.py .
 CMD ["python", "main.py"]
 
 

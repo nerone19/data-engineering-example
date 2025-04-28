@@ -71,7 +71,9 @@ services:
     - path: .env.local.default
 
   extractor:
-    build: .
+    build:
+      dockerfile: Dockerfile
+      target: data-extractor
     depends_on:
       database:
         condition: service_healthy

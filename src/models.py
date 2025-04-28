@@ -2,7 +2,8 @@ import os
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import SQLModel, Field, JSON, create_engine, Column, engine
+from sqlmodel import SQLModel, Field, JSON, create_engine, Column
+from sqlalchemy import engine
 
 
 class Ship(SQLModel, table=True):
